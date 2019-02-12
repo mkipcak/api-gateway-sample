@@ -1,0 +1,77 @@
+server:
+  port: 8443
+  http:
+    port: 8080
+  servlet:
+  # enable HTTP2
+  http2:
+    enabled: true
+  # enable compression
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+  ssl:
+    enabled: true
+    key-store: classpath:certificate.p12
+    key-store-type: PKCS12
+    key-store-password: "something"
+    key-alias: something
+    trust-store: classpath:certificate.p12
+    trust-store-password: "something"
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    consul:
+      enabled: true
+    gateway:
+      httpclient:
+        ssl:
+          handshake-timeout-millis: 10000
+          close-notify-flush-timeout-millis: 3000
+          close-notify-read-timeout-millis: 0
+      routes:
+      # - id: ui_path_route
+      #   predicates:
+      #   - Path="'/**'"
+      #   filters:
+      #   - RewritePath="'/**'", "/ui"
+      discovery:
+        instanceId: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${random.value}}}
+        locator:
+          enabled: true
+          predicates:
+          - Path="'/api/' + serviceId + '/**'"
+          filters:
+          - RewritePath="'/api/' + serviceId + '/(?<remaining>.*)'", "/serviceId + '/${remaining}'"
+management:
+  security:
+    enabled: false
+  server:
+    port: 8081
+    ssl:
+      enabled: false
+  endpoint:
+    gateway:
+      enabled: true
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: "*"
+    health:
+      sensitive: false
+logging:
+  level:
+    root: INFO
+    org:
+      springframework:
+        web: INFO
+  pattern:
+    console: "%-5level %d{dd-MM-yyyy HH:mm:ss,SSS} [%F:%L] VTC : %msg%n"
+    file: "%-5level %d{dd-MM-yyyy HH:mm:ss,SSS} [%F:%L] VTC : %msg%n"
+  file: /tmp/log_files/apigateway.log
+security:
+  require-ssl: true
+  basic:
+    enabled: false
