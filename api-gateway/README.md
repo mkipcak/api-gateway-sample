@@ -1,4 +1,4 @@
-# AO-Solutions-API-Gateway <a href="https://athenasowl.tv"><img align="right" src="https://imgur.com/rJzO7hX.png"></a>
+# Spring Cloud API Gateway
 
 
 ## Prerequisites
